@@ -98,13 +98,8 @@ void readServeur(SOCKET sock){
 		exit(3);
 	}
 	buffer[n] = '\0';
-<<<<<<< HEAD
 	
 	printf("# %s\n",buffer);
-=======
-
-	printf("%s\n",buffer);
->>>>>>> b572d4816cde4f9f6a051dcb0c1a7388d8c4ff85
 	printf("//--------------------------------------------------//\n");
 }
 
