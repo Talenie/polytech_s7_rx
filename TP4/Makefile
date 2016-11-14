@@ -1,6 +1,6 @@
 
-OBJ1 = fon.o client.o
-OBJ2 = fon.o serveur.o 
+OBJ1 = transfertcl.o
+OBJ2 = transfertse.o 
 OPTIONS	=
 # Adaptation a Darwin / MacOS X avec fink
 # Du fait de l'absence de libtermcap on se fait pas mal
@@ -29,25 +29,20 @@ OPTIONS	+= -ltermcap  -lsocket -lnsl
 CFLAGS	+= -I..
 endif
 
-EXEC = ${OBJ1} client ${OBJ2} serveur
+EXEC = ${OBJ1} transfertcl ${OBJ2} transfertse
 all: ${EXEC}
 
+transfertcl.o : transfertcl.c
+	gcc  $(CFLAGS) -c  transfertcl.c
 
-fon.o :  fon.h fon.c
-	gcc -c fon.c
-	#gcc -c fon.c
+transfertse.o :	transfertse.c
+	gcc  $(CFLAGS) -c  transfertse.c
 
-client.o : fon.h	client.c
-	gcc  $(CFLAGS) -c  client.c
+transfertcl : ${OBJ1}
+	gcc $(LFLAGS) ${OBJ1} -o transfertcl -lcurses   $(OPTIONS)
 
-serveur.o : fon.h	serveur.c
-	gcc  $(CFLAGS) -c  serveur.c
-
-client : ${OBJ1}
-	gcc $(LFLAGS) ${OBJ1} -o client -lcurses   $(OPTIONS)
-
-serveur : ${OBJ2}
-	gcc $(LFLAGS) ${OBJ2} -o serveur -lcurses   $(OPTIONS)
+transfertse : ${OBJ2}
+	gcc $(LFLAGS) ${OBJ2} -o transfertse -lcurses   $(OPTIONS)
 
 
 
