@@ -37,20 +37,20 @@ int main(int argc, char **argv)
 	char * serveur;
 	int port;
 	//------------------
-	
+
 	printf("Lancement du client FTP\n");
-	
+
 	if(argc < 3) {
 		fprintf(stderr,"Utilisation : ./transfertcl serveur(nom ou @IP) port(numéro) \n");
 		exit(0);
 	}
-	
+
 	serveur = argv[1];
 	port = atoi(argv[2]);
-	
+
 	printf("Serveur : %s\nPort : %d\n",serveur,port);
 	printf("//--------------------------------------------------//\n");
-	
+
 	// Création de socket
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if(sock == INVALID_SOCKET)
@@ -58,8 +58,8 @@ int main(int argc, char **argv)
 		perror("socket()");
 		exit(1);
 	}
-	
-	
+
+
 	// Connexion au serveur
 	struct hostent *hostinfo = NULL;
 	SOCKADDR_IN sin = { 0 }; /* initialise la structure avec des 0 */
@@ -81,12 +81,12 @@ int main(int argc, char **argv)
 		perror("connect()");
 		exit(2);
 	}
-	
-	
+
+
 	ftpClient(sock);
-	
+
 	closesocket(sock);
-	
+
 	return 0;
 }
 
@@ -98,8 +98,13 @@ void readServeur(SOCKET sock){
 		exit(3);
 	}
 	buffer[n] = '\0';
+<<<<<<< HEAD
 	
 	printf("# %s\n",buffer);
+=======
+
+	printf("%s\n",buffer);
+>>>>>>> b572d4816cde4f9f6a051dcb0c1a7388d8c4ff85
 	printf("//--------------------------------------------------//\n");
 }
 
@@ -115,18 +120,18 @@ void writeServeur(SOCKET sock, char* buffer){
 
 /* Corps du traitement de l'appli */
 void ftpClient(SOCKET sock){
-	
+
 	// Variable ----
 	char buffer[BUFFER_LEN];
 	int n;
 	int exit = 0;
 	// -------------
-		
+
 	printf("COUCOU LES LOULOUS !!\n");
 
 	// Le serveur présente les possibilités
 	readServeur(sock);
-	
+
 	// On récupère des commandes
 	while(!exit) {
 		
@@ -134,13 +139,11 @@ void ftpClient(SOCKET sock){
 		scanf("%s", buffer);
 		
 		writeServeur(sock,buffer);
-		
+
 		readServeur(sock);
 		
 		if(strcmp("quit",buffer)){exit = 1;}
 	}
-	
-	
+
+
 }
-
-
