@@ -121,9 +121,6 @@ void ftpClient(SOCKET sock){
 	int n;
 	int exit = 0;
 	// -------------
-
-	printf("COUCOU LES LOULOUS !!\n");
-
 	// Le serveur présente les possibilités
 	readServeur(sock);
 
@@ -137,8 +134,8 @@ void ftpClient(SOCKET sock){
 
 		readServeur(sock);
 		
-		if(strcmp("quit",buffer)){exit = 1;}
+		if(strcmp("quit",buffer) == 0){exit = 1;}
 	}
 
-
+	printf("Au revoir !\n");
 }
