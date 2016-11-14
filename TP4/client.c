@@ -23,27 +23,37 @@
 #define SERVICE_DEFAUT "1111"
 #define PROTOCOLE_DEFAUT "tcp"
 #define SERVEUR_DEFAUT "localhost"
+#define PORT_DEFAUT 3
 #define BUFFER_LEN 800
 #define MAXHOSTNAMELEN 255
 
-void client_appli (char *serveur);
+void client_appli (char *serveur,int port);
 
 int main(int argc, char **argv)
 {
 	char *serveur= SERVEUR_DEFAUT; /* serveur par defaut */
 	char *service= SERVICE_DEFAUT; /* numero de service par defaut (no de port) */
 	char *protocole= PROTOCOLE_DEFAUT; /* protocole par defaut */
+	int port = PORT_DEFAUT;
 
 	/* Permet de passer un nombre de parametre variable a l'executable */
 	switch(argc)
 	{
  	case 1 :		/* arguments par defaut */
 		  printf("serveur par defaut: %s\n",serveur);
+		  printf("port par defaut: %d\n",port);
 		  printf("service par defaut: %s\n",service);
 		  printf("protocole par defaut: %s\n",protocole);
 		  break;
   	case 2 :		/* serveur renseigne  */
 		  serveur=argv[1];
+		  printf("port par defaut: %d\n",port);
+		  printf("service par defaut: %s\n",service);
+		  printf("protocole par defaut: %s\n",protocole);
+		  break;
+  	case 3 :		/* serveur renseigne  */
+		  serveur = argv[1];
+		  port = atoi(argv[2]);
 		  printf("service par defaut: %s\n",service);
 		  printf("protocole par defaut: %s\n",protocole);
 		  break;
@@ -57,14 +67,14 @@ int main(int argc, char **argv)
 	/* service desire par le client */
 	/* protocole le protocole qui sera utilise pour la communication */
 
-	client_appli(serveur);
+	client_appli(serveur,port);
 	
 	return 0;
 }
 
 
 /* procedure correspondant au traitement du client de votre application */
-void client_appli (char *serveur)
+void client_appli (char *serveur,int port)
 {
 
   int soc_client;
@@ -76,7 +86,7 @@ void client_appli (char *serveur)
 
 	p_adr_serveur->sin_family = AF_INET;
 
-  // Initialisation du mode
+	// Initialisation du mode
 	mode = SOCK_DGRAM;
 
 	// Création du socket

@@ -27,6 +27,7 @@
 
 int main(int argc, char **argv)
 {
+	printf("Lancement du serveur ftp\n");
 	serveur_appli();
 	return 0;
 }
@@ -67,10 +68,12 @@ void serveur_appli(){
 	//Ecoute les connexions client
 	h_listen(soc_serveur, nbMaxRq);
 	
-	printf("hello socket listen \n");
+	printf("hello socket listen %d\n",soc_serveur);
 
 	//Tant que le processus courrant est la fonction principal, alors le serveur attend une demande de connexion
 	while(1) {
+		
+		printf("hello socket while %d\n",soc_serveur);
 		//Récupération du socket client
 		soc_client = h_accept(soc_serveur, p_adr_client);
 		printf("|===========================================|\n");
