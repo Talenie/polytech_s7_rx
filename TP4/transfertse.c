@@ -31,6 +31,23 @@ typedef struct in_addr IN_ADDR;
 #define BUFFER_LEN 1024
 #define MAXHOSTNAMELEN 255
 
+void readClient(SOCKET sock, char* buffer){
+	int n = 0;
+	if((n = recv(sock, buffer, BUFFER_LEN - 1, 0)) < 0){
+		perror("recv()");
+		exit(3);
+	}
+	buffer[n] = '\0';
+}
+
+void writeClient(SOCKET sock, char* buffer){
+	if(send(sock, buffer, strlen(buffer), 0) < 0)
+		{
+			perror("send()");
+			exit(4);
+		}
+}
+
 int main(int argc, char **argv)
 {
 	//----------------
@@ -41,6 +58,8 @@ int main(int argc, char **argv)
 	SOCKET csock;
 
 	int sinsize = sizeof csin;
+
+	int pid;
 
 	if(sock == INVALID_SOCKET)
 	{
@@ -68,18 +87,41 @@ int main(int argc, char **argv)
 	    exit(3);
 	}
 
-	csock = accept(sock, (SOCKADDR *)&csin, &sinsize);
+	while(1) {
+		csock = accept(sock, (SOCKADDR *)&csin, &sinsize);
+		printf("csock =  %d\n", csock);
 
-	if(csock == INVALID_SOCKET)
-	{
-	    perror("accept()");
-	    exit(4);
+		if(csock == INVALID_SOCKET)
+		{
+			perror("accept()");
+			exit(4);
+		}
+
+		pid = fork();
+
+		if(pid == 0) {
+			char buffer[BUFFER_LEN];
+
+			printf("Serveur connecté !\n");
+			writeClient(csock, "Bonjour, je suis Gilles !");
+
+			while(1) {
+				readClient(csock, buffer);
+				if(strcmp("quit",buffer) == 0) { exit(0); }
+
+				writeClient(csock, "J'ai reçu la commande\n");
+
+				printf("%s \n", buffer);
+			}
+
+			exit(0);
+		} else {
+			closesocket(csock);
+		}
+
 	}
 
-	printf("Serveur connecté !");
-
 	closesocket(sock);
-	closesocket(csock);
 
 	return 0;
 }

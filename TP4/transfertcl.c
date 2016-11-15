@@ -98,7 +98,7 @@ void readServeur(SOCKET sock){
 		exit(3);
 	}
 	buffer[n] = '\0';
-	
+
 	printf("# %s\n",buffer);
 	printf("//--------------------------------------------------//\n");
 }
@@ -129,15 +129,15 @@ void ftpClient(SOCKET sock){
 
 	// On récupère des commandes
 	while(!exit) {
-		
+
 		printf(">");
 		scanf("%s", buffer);
-		
+
 		writeServeur(sock,buffer);
 
 		readServeur(sock);
-		
-		if(strcmp("quit",buffer)){exit = 1;}
+
+		//if(strcmp("quit",buffer)){exit = 1;}
 	}
 
 
