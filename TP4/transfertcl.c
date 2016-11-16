@@ -98,7 +98,7 @@ void readServeur(SOCKET sock){
 		exit(3);
 	}
 	buffer[n] = '\0';
-	
+
 	printf("# %s\n",buffer);
 	printf("//--------------------------------------------------//\n");
 }
