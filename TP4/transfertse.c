@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "libFileTrsft.c"
 
 #include <sys/signal.h>
 #include <sys/wait.h>
@@ -30,28 +31,51 @@ typedef struct in_addr IN_ADDR;
 #define PROTOCOLE_DEFAUT "tcp"
 #define BUFFER_LEN 1024
 #define MAXHOSTNAMELEN 255
+#define PORT 25559
 
-void readClient(SOCKET sock, char* buffer){
-	int n = 0;
-	if((n = recv(sock, buffer, BUFFER_LEN - 1, 0)) < 0){
-		perror("recv()");
-		exit(3);
-	}
-	buffer[n] = '\0';
-}
+/* Corps du traitement côté serveur */
+void ftpServeur(SOCKET csock) {
 
-void writeClient(SOCKET sock, char* buffer){
-	if(send(sock, buffer, strlen(buffer), 0) < 0)
-		{
-			perror("send()");
-			exit(4);
+	// Variables ------------
+	char rcv_buffer[BUFFER_LEN];
+	char snd_buffer[BUFFER_LEN];
+	FILE *output;
+
+	int exit = 0;
+
+	while(!exit) {
+		// Le serveur attend le message du client
+		readClient(csock, rcv_buffer);
+
+		printf("%s \n", rcv_buffer);
+
+		if (strcmp(rcv_buffer, "quit") == 0) {
+			exit = 1;
 		}
+		else if(strcmp(rcv_buffer, "ls") == 0) {
+			output = popen("ls", "r");
+			//ATTENTION on est limités par la taille du buffer, il faut penser à mettre le résultat dans un fichier et l'envoyer par échange de fichier.
+			fread(snd_buffer, sizeof(char), sizeof(snd_buffer), output);
+			writeClient(csock, snd_buffer);
+		}
+		else if(strcmp(rcv_buffer, "put") == 0) {
+			printf("%s\n", rcv_buffer);
+		}
+		else if (strcmp(rcv_buffer, "get") == 0) {
+		}
+		else {
+			writeClient(csock, "Message inconnu");
+		}
+
+	}
 }
 
 int main(int argc, char **argv)
 {
 	//----------------
 	printf("Lancement du serveur FTP\n");
+	printf("Adresse du serveur : %s\n", "localhost");
+	printf("Port : %d\n", PORT);
 
 	SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
 	SOCKADDR_IN csin = { 0 };
@@ -73,7 +97,7 @@ int main(int argc, char **argv)
 
 	sin.sin_family = AF_INET;
 
-	sin.sin_port = htons(25555);
+	sin.sin_port = htons(PORT);
 
 	if(bind (sock, (SOCKADDR *) &sin, sizeof sin) == SOCKET_ERROR)
 	{
@@ -100,19 +124,10 @@ int main(int argc, char **argv)
 		pid = fork();
 
 		if(pid == 0) {
-			char buffer[BUFFER_LEN];
+				// Affichage de l'appli connectée
+				printf("Serveur connecté !\n");
 
-			printf("Serveur connecté !\n");
-			writeClient(csock, "Bonjour, je suis Gilles !");
-
-			while(1) {
-				readClient(csock, buffer);
-				if(strcmp("quit",buffer) == 0) { exit(0); }
-
-				writeClient(csock, "J'ai reçu la commande\n");
-
-				printf("%s \n", buffer);
-			}
+				ftpServeur(csock);
 
 			exit(0);
 		} else {

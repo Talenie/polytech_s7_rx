@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "libFileTrsft.c"
 
 #include <sys/signal.h>
 #include <sys/wait.h>
@@ -22,9 +23,6 @@ typedef int SOCKET;
 typedef struct sockaddr_in SOCKADDR_IN;
 typedef struct sockaddr SOCKADDR;
 typedef struct in_addr IN_ADDR;
-
-
-
 
 #define BUFFER_LEN 1024
 
@@ -90,29 +88,6 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-void readServeur(SOCKET sock){
-	char buffer[BUFFER_LEN];
-	int n = 0;
-	if((n = recv(sock, buffer, BUFFER_LEN - 1, 0)) < 0){
-		perror("recv()");
-		exit(3);
-	}
-	buffer[n] = '\0';
-
-	printf("# %s\n",buffer);
-	printf("//--------------------------------------------------//\n");
-}
-
-void writeServeur(SOCKET sock, char* buffer){
-	if(send(sock, buffer, strlen(buffer), 0) < 0)
-		{
-			perror("send()");
-			exit(4);
-		}
-}
-
-
-
 /* Corps du traitement de l'appli */
 void ftpClient(SOCKET sock){
 
@@ -122,25 +97,29 @@ void ftpClient(SOCKET sock){
 	int exit = 0;
 	// -------------
 	// Le serveur présente les possibilités
-	readServeur(sock);
 
 	// On récupère des commandes
 	while(!exit) {
-		
+
 		printf("> ");
 		scanf("%s", buffer);
-		
-		if(strcmp("quit",buffer) == 0){
+		writeServeur(sock, buffer);
+
+		if (strcmp(buffer, "quit") == 0) {
 			exit = 1;
-		} 
-		else if(strcmp("ls",buffer) == 0){
-			system("ls");
-		} 
-		else {
-			writeServeur(sock,buffer);
+		}
+		else if(strcmp(buffer, "ls") == 0) {
 			readServeur(sock);
 		}
-		
+		else if(strcmp(buffer, "put") == 0) {
+		}
+		else if (strcmp(buffer, "get") == 0) {
+
+		}
+		else {
+			readServeur(sock);
+		}
+
 	}
 
 	printf("Au revoir !\n");
