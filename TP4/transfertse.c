@@ -31,7 +31,7 @@ typedef struct in_addr IN_ADDR;
 #define PROTOCOLE_DEFAUT "tcp"
 #define BUFFER_LEN 1024
 #define MAXHOSTNAMELEN 255
-#define PORT 25559
+#define PORT 25562
 
 /* Corps du traitement côté serveur */
 void ftpServeur(SOCKET csock) {
@@ -39,7 +39,7 @@ void ftpServeur(SOCKET csock) {
 	// Variables ------------
 	char rcv_buffer[BUFFER_LEN];
 	char snd_buffer[BUFFER_LEN];
-	FILE *output;
+	//FILE *output;
 
 	int exit = 0;
 
@@ -47,16 +47,16 @@ void ftpServeur(SOCKET csock) {
 		// Le serveur attend le message du client
 		readClient(csock, rcv_buffer);
 
-		printf("%s \n", rcv_buffer);
+		printf("Socket %d |	commande recue : %s \n", csock, rcv_buffer);
 
 		if (strcmp(rcv_buffer, "quit") == 0) {
 			exit = 1;
 		}
 		else if(strcmp(rcv_buffer, "ls") == 0) {
-			output = popen("ls", "r");
-			//ATTENTION on est limités par la taille du buffer, il faut penser à mettre le résultat dans un fichier et l'envoyer par échange de fichier.
-			fread(snd_buffer, sizeof(char), sizeof(snd_buffer), output);
-			writeClient(csock, snd_buffer);
+			system("ls > lsse.tmp");
+			sendFile("lsse.tmp", csock);
+			//suppression du fichier temporaire
+			remove("lsse.tmp");
 		}
 		else if(strcmp(rcv_buffer, "put") == 0) {
 			printf("%s\n", rcv_buffer);
@@ -66,8 +66,9 @@ void ftpServeur(SOCKET csock) {
 		else {
 			writeClient(csock, "Message inconnu");
 		}
-
 	}
+
+	printf("Socket %d |	Fermeture de la session.\n", csock);
 }
 
 int main(int argc, char **argv)

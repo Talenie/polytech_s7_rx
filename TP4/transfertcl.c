@@ -109,9 +109,11 @@ void ftpClient(SOCKET sock){
 			exit = 1;
 		}
 		else if(strcmp(buffer, "ls") == 0) {
-			readServeur(sock);
+			//Lecture de la réception
+			printRecv(sock);
 		}
 		else if(strcmp(buffer, "put") == 0) {
+
 		}
 		else if (strcmp(buffer, "get") == 0) {
 

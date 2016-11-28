@@ -67,6 +67,7 @@ void sendFile(char *filename, SOCKET sock) {
     exit(5);
   }
 
+
   sprintf(file_size, "%d", file_stat.st_size);
 
   // On informe le receveur de la taille de fichier
@@ -74,19 +75,22 @@ void sendFile(char *filename, SOCKET sock) {
 		perror("send()");
 		exit(4);
   }
+	printf("Socket %d |	Taille du fichier à envoyer : %d o\n", sock, atoi(file_size));
 
   int restant = atoi(file_size); //La quantité de données restances à envoyer
   off_t decalage = 0;
-  int sent = 0;
+  int sent;
   // Boucle d'envoi des données
-  while (((sent = sendfile(sock, file, &decalage, BUFFER_LEN)) > 0) && (restant > 0))
+  while ((restant > 0) && ((sent = sendfile(sock, file, &decalage, BUFFER_LEN)) > 0))
   {
-          restant -= sent; // Calcul des données restantes à envoyer
-          printf("Encore %d b à envoyer", restant);
+			printf("Socket %d |	envoi de données : %d o restants\n", sock, restant);
+      restant -= sent; // Calcul des données restantes à envoyer
   }
+
+	printf("TERMINE\n");
 }
 
-void receveFile(char *filename, SOCKET sock) {
+void receiveFile(char *filename, SOCKET sock) {
   char rcv_buffer[BUFFER_LEN];
   int file_size;
   FILE *file;
@@ -94,6 +98,7 @@ void receveFile(char *filename, SOCKET sock) {
   // taille totale du fichier à recevoir
   recv(sock, rcv_buffer, BUFFER_LEN, 0);
   file_size = atoi(rcv_buffer);
+	printf("Taille du fichier : %d o\n", file_size);
 
   file = fopen(filename, "w");
   if (file == NULL)
@@ -105,11 +110,30 @@ void receveFile(char *filename, SOCKET sock) {
   int restant = file_size; // donnees restantes à récupérer
   int rcv; // compteur de donnees recues
 
-  while (((rcv = recv(sock, rcv_buffer, BUFFER_LEN, 0)) > 0) && (restant > 0))
+  while ((restant > 0) && ((rcv = recv(sock, rcv_buffer, BUFFER_LEN, 0)) > 0))
   {
-          fwrite(rcv_buffer, sizeof(char), rcv, file); //Ecriture des données recues dans le fichier de sortie
+					fwrite(rcv_buffer, sizeof(char), rcv, file); //Ecriture des données recues dans le fichier de sortie
           restant -= rcv; //Calcul des données restantes à envoyer
+					printf("Socket %d |	réception de données : %d restant\n", sock, restant);
   }
   fclose(file);
+
+}
+
+void printRecv(SOCKET sock) {
+  char rcv_buffer[BUFFER_LEN];
+  int file_size;
+
+  // taille totale du fichier à recevoir
+  recv(sock, rcv_buffer, BUFFER_LEN, 0);
+  file_size = atoi(rcv_buffer);
+
+  int restant = file_size; // donnees restantes à récupérer
+  int rcv; // compteur de donnees recues
+  while ((restant > 0) && ((rcv = recv(sock, rcv_buffer, BUFFER_LEN, 0)) > 0))
+  {
+		printf("%s", rcv_buffer);
+		restant -= rcv; //Calcul des données restantes à envoyer
+  }
 
 }
