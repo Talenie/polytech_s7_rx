@@ -102,24 +102,50 @@ void ftpClient(SOCKET sock){
 	while(!exit) {
 
 		printf("> ");
-		scanf("%s", buffer);
+		scanf("%[^\n]%*c", buffer);
 		writeServeur(sock, buffer);
 
-		if (strcmp(buffer, "quit") == 0) {
-			exit = 1;
-		}
-		else if(strcmp(buffer, "ls") == 0) {
-			//Lecture de la réception
-			printRecv(sock);
-		}
-		else if(strcmp(buffer, "put") == 0) {
+		/* Découpage de la commande reçue */
+		char * token;
+	  token = strtok (buffer," ");
 
-		}
-		else if (strcmp(buffer, "get") == 0) {
+		if(token != NULL) {
+			if (strcmp(token, "quit") == 0) {
+				exit = 1;
+			}
+			else if(strcmp(token, "ls") == 0) {
+				//Lecture de la réception
+				printRecv(sock);
+			}
+			else if(strcmp(token, "put") == 0) {
+				printf("---==== ENVOI DES FICHIERS ====---\n");
+				token = strtok(NULL, " ");
+				while (token != NULL)
+				{
+					printf("%s\n", token);
 
-		}
-		else {
-			readServeur(sock);
+					sendFile(token, sock);
+
+					token = strtok(NULL, " ");
+				}
+				printf("---==== FIN D'ENVOI ====---\n");
+			}
+			else if (strcmp(token, "get") == 0) {
+				printf("---==== RECEPTION DE FICHIERS ====---\n");
+				token = strtok(NULL, " ");
+				while (token != NULL)
+				{
+					printf("%s\n", token);
+
+					receiveFile(token, sock);
+
+					token = strtok(NULL, " ");
+				}
+				printf("---==== FIN D'ENVOI ====---\n");
+			}
+			else {
+				readServeur(sock);
+			}
 		}
 
 	}

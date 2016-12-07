@@ -31,7 +31,7 @@ typedef struct in_addr IN_ADDR;
 #define PROTOCOLE_DEFAUT "tcp"
 #define BUFFER_LEN 1024
 #define MAXHOSTNAMELEN 255
-#define PORT 25562
+#define PORT 25564
 
 /* Corps du traitement côté serveur */
 void ftpServeur(SOCKET csock) {
@@ -49,23 +49,50 @@ void ftpServeur(SOCKET csock) {
 
 		printf("Socket %d |	commande recue : %s \n", csock, rcv_buffer);
 
-		if (strcmp(rcv_buffer, "quit") == 0) {
-			exit = 1;
+		/* Découpage de la commande reçue */
+		char * token;
+	  token = strtok (rcv_buffer," ");
+
+		if(token != NULL) {
+			if (strcmp(token, "quit") == 0) {
+				exit = 1;
+			}
+			else if(strcmp(token, "ls") == 0) {
+				// seul problème, on voit lsse dans le ls
+				system("ls > lsse.tmp");
+				sendFile("lsse.tmp", csock);
+				//suppression du fichier temporaire
+				remove("lsse.tmp");
+			}
+			else if(strcmp(token, "put") == 0) {
+				token = strtok(NULL, " ");
+				while (token != NULL)
+				{
+					printf("%s\n", token);
+
+					receiveFile(token, csock);
+
+					token = strtok(NULL, " ");
+				}
+			}
+			else if (strcmp(token, "get") == 0) {
+				token = strtok(NULL, " ");
+				while (token != NULL)
+				{
+					printf("%s\n", token);
+
+					sendFile(token, csock);
+
+					token = strtok(NULL, " ");
+				}
+			}
+			else {
+				writeClient(csock, "Message inconnu");
+			}
+		} else {
+			writeClient(csock, "Message vide");
 		}
-		else if(strcmp(rcv_buffer, "ls") == 0) {
-			system("ls > lsse.tmp");
-			sendFile("lsse.tmp", csock);
-			//suppression du fichier temporaire
-			remove("lsse.tmp");
-		}
-		else if(strcmp(rcv_buffer, "put") == 0) {
-			printf("%s\n", rcv_buffer);
-		}
-		else if (strcmp(rcv_buffer, "get") == 0) {
-		}
-		else {
-			writeClient(csock, "Message inconnu");
-		}
+
 	}
 
 	printf("Socket %d |	Fermeture de la session.\n", csock);

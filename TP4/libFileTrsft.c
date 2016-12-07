@@ -87,7 +87,6 @@ void sendFile(char *filename, SOCKET sock) {
       restant -= sent; // Calcul des données restantes à envoyer
   }
 
-	printf("TERMINE\n");
 }
 
 void receiveFile(char *filename, SOCKET sock) {
@@ -117,6 +116,7 @@ void receiveFile(char *filename, SOCKET sock) {
 					printf("Socket %d |	réception de données : %d restant\n", sock, restant);
   }
   fclose(file);
+	printf("fichier %s reçu.\n", filename);
 
 }
 

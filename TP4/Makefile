@@ -30,7 +30,7 @@ OPTIONS	+= -ltermcap  -lsocket -lnsl
 CFLAGS	+= -I..
 endif
 
-EXEC = ${OBJ1} transfertcl ${OBJ2} transfertse
+EXEC = ${OBJ1} transfertcl ${OBJ2} transfertse ${OBJ3}
 all: ${EXEC}
 
 transfertcl.o : transfertcl.c ${OBJ3}
