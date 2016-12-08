@@ -81,11 +81,13 @@ void sendFile(char *filename, SOCKET sock) {
   off_t decalage = 0;
   int sent;
   // Boucle d'envoi des données
-  while ((restant > 0) && ((sent = sendfile(sock, file, &decalage, BUFFER_LEN)) > 0))
+  while ((restant > 0) && ((sent = sendfile(sock, file, &decalage, BUFFER_LEN-1)) > 0))
   {
 			printf("Socket %d |	envoi de données : %d o restants\n", sock, restant);
       restant -= sent; // Calcul des données restantes à envoyer
   }
+
+	close(file);
 
 }
 

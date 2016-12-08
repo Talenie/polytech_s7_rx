@@ -59,10 +59,10 @@ void ftpServeur(SOCKET csock) {
 			}
 			else if(strcmp(token, "ls") == 0) {
 				// seul problème, on voit lsse dans le ls
-				system("ls > lsse.tmp");
-				sendFile("lsse.tmp", csock);
+				system("ls > .lsse.tmp");
+				sendFile(".lsse.tmp", csock);
 				//suppression du fichier temporaire
-				remove("lsse.tmp");
+				remove(".lsse.tmp");
 			}
 			else if(strcmp(token, "put") == 0) {
 				token = strtok(NULL, " ");
