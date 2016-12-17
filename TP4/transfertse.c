@@ -58,7 +58,10 @@ void ftpServeur(SOCKET csock) {
 				exit = 1;
 			}
 			else if(strcmp(token, "ls") == 0) {
-				// seul problème, on voit lsse dans le ls
+				/*
+					création d'un fichier temporaire "invisible" contenant le résultat de ls
+					On utilise ici un fichier invisible pour éviter de l'afficher dans le fichier créé. Du coup, il est impossible d'appliquer des options à la commande, on risquerait de l'afficher si l'utilisateur ajoute "-a"... Nous passons par le biais d'un fichier car cela nous éviter d'avoir à gérer le découpage de la commande, dans le cas où plusieurs centaines de fichiers seraient présent dans le dossier courant.
+				*/
 				system("ls > .lsse.tmp");
 				sendFile(".lsse.tmp", csock);
 				//suppression du fichier temporaire
@@ -66,7 +69,7 @@ void ftpServeur(SOCKET csock) {
 			}
 			else if(strcmp(token, "put") == 0) {
 				token = strtok(NULL, " ");
-				while (token != NULL)
+				while (token != NULL) // boucle sur les noms de fichiers à récupérer
 				{
 					printf("%s\n", token);
 
@@ -100,10 +103,11 @@ void ftpServeur(SOCKET csock) {
 
 int main(int argc, char **argv)
 {
-	//----------------
+	//--------On informe le client--------//
 	printf("Lancement du serveur FTP\n");
 	printf("Adresse du serveur : %s\n", "localhost");
 	printf("Port : %d\n", PORT);
+	//------------------------------------//
 
 	SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
 	SOCKADDR_IN csin = { 0 };
@@ -139,8 +143,8 @@ int main(int argc, char **argv)
 	    exit(3);
 	}
 
-	while(1) {
-		csock = accept(sock, (SOCKADDR *)&csin, &sinsize);
+	while(1) { // le serveur boucle à l'infini.
+		csock = accept(sock, (SOCKADDR *)&csin, &sinsize); // en attente de réception d'une connexion client
 		printf("csock =  %d\n", csock);
 
 		if(csock == INVALID_SOCKET)
@@ -149,7 +153,7 @@ int main(int argc, char **argv)
 			exit(4);
 		}
 
-		pid = fork();
+		pid = fork(); // création d'un fils prêt à effectuer la communication avec le client
 
 		if(pid == 0) {
 				// Affichage de l'appli connectée
@@ -158,7 +162,7 @@ int main(int argc, char **argv)
 				ftpServeur(csock);
 
 			exit(0);
-		} else {
+		} else { // le père continue son exécution, et ne doit plus connaitre le client.
 			closesocket(csock);
 		}
 

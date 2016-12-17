@@ -81,9 +81,9 @@ int main(int argc, char **argv)
 	}
 
 
-	ftpClient(sock);
+	ftpClient(sock); // lancement de la fonction d'échange avec le serveur
 
-	closesocket(sock);
+	closesocket(sock); // fermeture de la connexion
 
 	return 0;
 }
@@ -102,29 +102,32 @@ void ftpClient(SOCKET sock){
 	while(!exit) {
 
 		printf("> ");
-		scanf("%[^\n]%*c", buffer);
-		writeServeur(sock, buffer);
+		scanf("%[^\n]%*c", buffer); //lecture de la commande
+		writeServeur(sock, buffer); //envoi de la commande émise au serveur
 
 		/* Découpage de la commande reçue */
 		char * token;
 	  token = strtok (buffer," ");
 
 		if(token != NULL) {
-			if (strcmp(token, "quit") == 0) {
+			if (strcmp(token, "quit") == 0) { // en cas de terminaison
 				exit = 1;
 			}
-			else if(strcmp(token, "ls") == 0) {
+			else if(strcmp(token, "ls") == 0) { // affichage du contenu du dossier serveur
 				//Lecture de la réception
 				printRecv(sock);
 			}
 			else if(strcmp(token, "put") == 0) {
 				printf("---==== ENVOI DES FICHIERS ====---\n");
 				token = strtok(NULL, " ");
-				while (token != NULL)
+				while (token != NULL) // tant qu'un nouveau nom de fichier est présent
 				{
 					printf("%s\n", token);
 
-					sendFile(token, sock);
+					/*
+						Note : nous voulions faire en sorte de pouvoir envoyer / recevoir plusieurs fichiers (en une seule ligne de commande), mais visiblement, cela ne fonctionne pas correctement. Dans l'idée, plusieurs fichiers sont envoyés ou reçus, mais un seul d'entre eux contient toutes les données, et les autres sont vides. En revanche, l'envoie d'un seul fichier fonctionne correctement.
+					*/
+					sendFile(token, sock); // on envoie les fichiers
 
 					token = strtok(NULL, " ");
 				}
@@ -133,7 +136,7 @@ void ftpClient(SOCKET sock){
 			else if (strcmp(token, "get") == 0) {
 				printf("---==== RECEPTION DE FICHIERS ====---\n");
 				token = strtok(NULL, " ");
-				while (token != NULL)
+				while (token != NULL) //même fonctionnement que la réception
 				{
 					printf("%s\n", token);
 
@@ -144,7 +147,7 @@ void ftpClient(SOCKET sock){
 				printf("---==== FIN D'ENVOI ====---\n");
 			}
 			else {
-				readServeur(sock);
+				readServeur(sock); // Si aucune commande prévue n'a été émise, on laisse le serveur répondre.
 			}
 		}
 
